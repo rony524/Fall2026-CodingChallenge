@@ -1,4 +1,4 @@
-interface NotificationItems {
+export interface NotificationItems {
     is_read: boolean;
     notification_id: string;
     message: string;
@@ -14,14 +14,14 @@ const API_BASE = import.meta.env.VITE_API_URL ?? "https://localhost:3000";
 
 interface GetNotificationOptions {
     limit?: number;
-    offside?: number;
+    offset?: number;
 }
 
 export async function getNotifications({
         limit = 4,
-        offside = 0
+        offset = 0
     }:GetNotificationOptions = {}): Promise<NotificationPages> {
-    const res = await fetch(`API_BASE/api/notifications?limit=${limit}&offset=${offside}`, {credentials: "include"});
+    const res = await fetch(`API_BASE/api/notifications?limit=${limit}&offset=${offset}`, {credentials: "include"});
 
     if(!res.ok) {
         const body = await res.json().catch(()=> null) ;

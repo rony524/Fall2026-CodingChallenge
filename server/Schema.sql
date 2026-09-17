@@ -1,7 +1,14 @@
-create database PixShare_database;
-create schema database;
+-- create database PixShare_database;
+-- create schema database;
 
 create extension if not exist pgcrypt;
+
+drop table if exists notifications;
+drop table if exists collection_collaborators;
+drop table if exists collection_images;
+drop table if exists collections;
+drop table if exists images;
+drop table if exists users;
 
 -- User data table, Fact Table
 create table User(
