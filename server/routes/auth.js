@@ -4,11 +4,12 @@ import { pool} from "../db.js";
 
 const authRouter = Router();
 
+//api post signup route
 authRouter.post("/signup", async (req, res) => {
     const {firstName, lastName, username, password} = req.body;
 
     const exsisting = await pool.query(
-        `SELECT user_id FROM User WHERE username =$1`, [username]
+        `SELECT user_id FROM users WHERE username =$1`, [username]
     )
 
     if(!username || !password) {
@@ -26,7 +27,7 @@ authRouter.post("/signup", async (req, res) => {
     const password_hash = await bcrypt.hash(password, 10);
 
     const result = await pool.query(
-        `INSERT INTO User (firstName, lastName, username, password)  VALUES($1,$2,$3,$4) RETURNING user_id, username, firstName, lastName`, [firstName ?? null,lastName ?? null,username,password_hash]
+        `INSERT INTO users (firstName, lastName, username, password)  VALUES($1,$2,$3,$4) RETURNING user_id, username, firstName, lastName`, [firstName ?? null,lastName ?? null,username,password_hash]
     )
 
     const user = result.rows[0];
@@ -36,11 +37,12 @@ authRouter.post("/signup", async (req, res) => {
     res.status(201).json(user);
 })
 
+//api post login route
 authRouter.post("/login", async (req,res) => {
    const {username, password} = req.body;
 
    const result = await pool.query(
-    `SELECT user_id, username, password_hash FROM USER WHERE username=$1`, [username]
+    `SELECT user_id, username, password_hash FROM users WHERE username=$1`, [username]
    )
 
    const user = result.rows[0];
@@ -58,6 +60,7 @@ authRouter.post("/login", async (req,res) => {
 
 })
 
+//api post logout route
 authRouter.post("/logout", async (req,res) => {
     req.session.destroy(() => {
         res.status(204).send()
@@ -65,6 +68,7 @@ authRouter.post("/logout", async (req,res) => {
 
 });
 
+//api get current user route
 authRouter.get("/me", async (req, res) => {
     if(!req.session.userId) {
         res.status(401).json(
@@ -73,7 +77,7 @@ authRouter.get("/me", async (req, res) => {
     }
 
     const result = pool.query(
-        `SELECT user_id, firstName, lastName, username FROM User WHERE user_id=$1`, [req.session.userId] 
+        `SELECT user_id, firstName, lastName, username FROM users WHERE user_id=$1`, [req.session.userId] 
     );
     const user = result.rows[0];
 

@@ -11,8 +11,8 @@ drop table if exists images;
 drop table if exists users;
 
 -- User data table, Fact Table
-create table User(
-    user_id  Serial Primary Key,
+create table users (
+    user_id  serial Primary Key,
     firstName varchar(30),
     lastName varchar(30),
     username varchar(50),
@@ -21,7 +21,7 @@ create table User(
 )
 
 -- Images data table, references User
-create table Images(
+create table images(
     image_id Serial Primary Key,
     user_id int not null references User(user_id) on delete cascade;
     url text not null,
@@ -30,7 +30,7 @@ create table Images(
 )
 
 -- Collections data table, references User 
-create table Collections (
+create table collections (
     collection_id serial primary key,
     owner_id int not null references users(user_id) on delete cascade,
     name varchar(150) not null,
@@ -41,7 +41,7 @@ create table Collections (
 
 
 -- Collection-images data table, references Collection, Image
-create table Collection_images (
+create table collection_images (
     collection_id int not null references collections(collection_id) on delete cascade,
     image_id int not null references images(image_id) on delete cascade,
     added_at timestamp default now(),
@@ -49,7 +49,7 @@ create table Collection_images (
 );
 
 -- Collection-collaborators data table, references Collection, User
-create table Collection_collaborators (
+create table collection_collaborators (
     collection_id int not null references collections(collection_id) on delete cascade,
     user_id int not null references users(user_id) on delete cascade,
     role varchar(20) not null default 'editor',
@@ -59,7 +59,7 @@ create table Collection_collaborators (
 
 
 -- Notifications data table, references User
-create table Notifications (
+create table notifications (
     notification_id serial primary key,
     user_id int not null references users(user_id) on delete cascade,
     message text not null,

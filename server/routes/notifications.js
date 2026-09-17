@@ -3,14 +3,14 @@ import { pool } from "../db.js";
 
 const notificationsRouter = new Router();
 
+//api get notifications of user route
 notificationsRouter.get("/", requireAuth, async (req,res) => {
 
     const limit = Math.min((Number(req.params.limit)) || 4, 50);
     const offset = Number(req.params.offset) || 0;
 
-    const itemsResult = await pool.query(`SELECT notification_id, message, is_read, created_at FROM Notifications WHERE user_id = $1 ORDER BY created_at DESC LIMIT = $2 OFFSET = $3`, [req.session.userId, limit, offset]);
-
-    const countResult = await pool.query(`SELECT COUNT(notification_id) FROM Notifications WHERE user_id = $1`, [req.session.userId]);
+    const itemsResult = await pool.query(`SELECT notification_id, message, is_read, created_at FROM notifications WHERE user_id = $1 ORDER BY created_at DESC LIMIT = $2 OFFSET = $3`, [req.session.userId, limit, offset]);
+    const countResult = await pool.query(`SELECT COUNT(notification_id) FROM notifications WHERE user_id = $1`, [req.session.userId]);
 
     const total = Number(countResult.rows[0].count);
 
@@ -23,6 +23,7 @@ notificationsRouter.get("/", requireAuth, async (req,res) => {
     
 })
 
+//api patch notifications to be marked as read route
 notificationsRouter.patch("/:id", requireAuth, async (req, res) => {
   const result = await pool.query(
     "UPDATE notifications SET is_read = true WHERE notification_id = $1 AND user_id = $2 RETURNING notification_id",
@@ -36,6 +37,7 @@ notificationsRouter.patch("/:id", requireAuth, async (req, res) => {
   res.status(204).send();
 });
 
+//handles notifications for collections 
 export async function notifyCollectionMembers(collectionId, actingUserId, message) {
   const result = await pool.query(
     `SELECT owner_id AS user_id FROM collections WHERE collection_id = $1
