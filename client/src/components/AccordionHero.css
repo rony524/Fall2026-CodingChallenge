@@ -1,0 +1,202 @@
+.acc-hero {
+  --accent: #b25a3c;
+
+  display: flex;
+  min-height: 100vh; /* the "separated from the page" full screen */
+  background: #100d0b;
+  color: #f5efe6;
+  font-family: inherit;
+}
+
+/* Left: vertical accordion of steps, each with a line + a button */
+
+.acc-hero-steps {
+  list-style: none;
+  margin: 0;
+  padding: 64px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 0 0 220px;
+}
+
+.acc-hero-step {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+  height: 84px;
+}
+
+.acc-hero-step-line {
+  width: 2px;
+  background: rgba(245, 239, 230, 0.2);
+  transition: background 300ms ease;
+}
+
+.acc-hero-step.is-active .acc-hero-step-line {
+  background: var(--accent);
+}
+
+.acc-hero-step button {
+  border: none;
+  background: transparent;
+  color: rgba(245, 239, 230, 0.55);
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  padding: 0;
+  transition: color 200ms ease;
+}
+
+.acc-hero-step.is-active button {
+  color: #ffffff;
+}
+
+.acc-hero-step button:disabled {
+  cursor: default;
+}
+
+/* Right: the camera visual */
+
+.acc-hero-visual {
+  position: relative;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.acc-hero-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform-origin: var(--focus-x) var(--focus-y);
+  transition: transform 550ms ease;
+}
+
+/* Focusing: a slow zoom toward the focus point, like a lens racking focus. */
+.acc-hero-visual[data-phase="focusing"] .acc-hero-bg,
+.acc-hero-visual[data-phase="closing"] .acc-hero-bg {
+  transform: scale(1.08);
+}
+
+/* The vignette: everything outside a small circle at the focus point dims out. */
+.acc-hero-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at var(--focus-x) var(--focus-y), transparent 0%, transparent 12%, rgba(10, 8, 7, 0.82) 46%);
+  opacity: 0;
+  transition: opacity 400ms ease;
+  pointer-events: none;
+}
+
+.acc-hero-visual[data-phase="focusing"] .acc-hero-vignette,
+.acc-hero-visual[data-phase="closing"] .acc-hero-vignette,
+.acc-hero-visual[data-phase="opening"] .acc-hero-vignette {
+  opacity: 1;
+}
+
+/* The lens reticle: a ring + crosshair ticks, positioned exactly on the focus point. */
+.acc-hero-lens {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  left: var(--focus-x);
+  top: var(--focus-y);
+  transform: translate(-50%, -50%) scale(1.4);
+  opacity: 0;
+  transition: opacity 250ms ease, transform 550ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  pointer-events: none;
+}
+
+.acc-hero-visual[data-phase="focusing"] .acc-hero-lens {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1); /* settles from 1.4x down to 1x — the "racking into focus" motion */
+}
+
+/* The shutter: a black layer whose visible area is a circle centered on the focus point.
+   clip-path circle(R% at X Y) means "only show this element inside a circle of radius R" —
+   animating R from 0% to 150% makes the black grow outward from the focus point (closing),
+   and back to 0% makes it shrink away again (opening), revealing whatever's underneath. */
+.acc-hero-shutter {
+  position: absolute;
+  inset: 0;
+  background: #0b0908;
+  clip-path: circle(0% at var(--focus-x) var(--focus-y));
+  transition: clip-path 280ms ease-in;
+  pointer-events: none;
+}
+
+.acc-hero-visual[data-phase="closing"] .acc-hero-shutter {
+  clip-path: circle(150% at var(--focus-x) var(--focus-y)); /* 150%: comfortably covers every corner */
+}
+
+.acc-hero-visual[data-phase="opening"] .acc-hero-shutter {
+  clip-path: circle(0% at var(--focus-x) var(--focus-y));
+  transition-duration: 380ms;
+  transition-timing-function: ease-out;
+}
+
+.acc-hero-text {
+  position: absolute;
+  left: 48px;
+  bottom: 56px;
+  max-width: 420px;
+  animation: acc-text-reveal 500ms ease both;
+}
+
+.acc-hero-text h2 {
+  margin: 0 0 10px;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.acc-hero-text p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: rgba(245, 239, 230, 0.85);
+}
+
+@keyframes acc-text-reveal {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .acc-hero-bg, .acc-hero-vignette, .acc-hero-lens, .acc-hero-shutter, .acc-hero-text {
+    transition: none;
+    animation: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .acc-hero {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .acc-hero-steps {
+    flex-direction: row;
+    flex: 0 0 auto;
+    padding: 20px;
+    gap: 20px;
+    overflow-x: auto;
+  }
+
+  .acc-hero-step {
+    flex-direction: column;
+    height: auto;
+    gap: 8px;
+  }
+
+  .acc-hero-step-line {
+    width: 100%;
+    height: 2px;
+  }
+
+  .acc-hero-visual {
+    height: 70vh;
+  }
+}

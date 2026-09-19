@@ -1,0 +1,13 @@
+.home-page {
+  min-height: 100vh;
+  background: #faf6ef;
+}
+
+.home-page-controls {
+  padding-top: 16px;
+  background: #faf6ef;
+}
+
+.home-page-content {
+  min-height: 40vh;
+}

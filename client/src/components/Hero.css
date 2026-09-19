@@ -1,0 +1,90 @@
+.hero {
+  --hero-bg: #faf6ef;
+  --hero-ink: #2c2521;
+  --hero-ink-soft: #75695f;
+  --hero-accent: #b25a3c;
+
+  display: flex;
+  align-items: center;
+  gap: 48px;
+  padding: 96px 48px;
+  background: var(--hero-bg);
+}
+
+.hero-copy {
+  flex: 1 1 480px;
+  max-width: 560px;
+}
+
+.hero-copy h1 {
+  margin: 0 0 16px;
+  font-size: 44px;
+  line-height: 1.15;
+  font-weight: 600;
+  color: var(--hero-ink);
+}
+
+.hero-copy p {
+  margin: 0 0 32px;
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--hero-ink-soft);
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.hero-cta {
+  padding: 14px 28px;
+  border-radius: 10px;
+  border: none;
+  background: var(--hero-accent);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.hero-secondary {
+  padding: 14px 20px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: var(--hero-ink);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.hero-media {
+  flex: 1 1 420px;
+  max-width: 480px;
+}
+
+.hero-media img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(44, 37, 33, 0.16);
+}
+
+/* Stack on phone width instead of squashing two columns. */
+@media (max-width: 720px) {
+  .hero {
+    flex-direction: column;
+    padding: 56px 24px;
+    text-align: center;
+  }
+
+  .hero-copy h1 {
+    font-size: 32px;
+  }
+
+  .hero-actions {
+    justify-content: center;
+  }
+}

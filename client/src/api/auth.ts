@@ -1,4 +1,6 @@
-interface AuthUser {
+
+
+export interface AuthUser {
     firstname: string | null,
     lastname: string | null,
     user_id: number,
@@ -12,24 +14,26 @@ interface SignInInput {
     password: string
 }
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "https://localhost:3000";
+const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
 export async function login(username: string, password: string): Promise<AuthUser>{
     const res = await fetch(`${API_BASE}/api/auth/login`, {
         method: "POST",
         credentials: "include",
-        headers: { "Content_Type" : "application/json"},
+        headers: { "Content-Type" : "application/json"},
         body: JSON.stringify({username, password})
     })
 
-    if(!res.ok) {
-        const body = await res.json().catch(() => null);
-        throw new Error(`Login unsuccessful (${res.status})`)
-    }
+    if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.error?.message ?? `Login failed (${res.status})`);
+  }
+
+  return res.json();
 }
 
 export async function logout(): Promise<void> {
-    const res = await fetch(`${API_BASE}/api/auth/logout`, {
+    await fetch(`${API_BASE}/api/auth/logout`, {
         method: "POST",
         credentials: "include",
 
@@ -42,14 +46,16 @@ export async function signUp( input: SignInInput): Promise<AuthUser> {
     const res = await fetch(`${API_BASE}/api/auth/signup`, {
         method: "POST",
         credentials: "include",
-        headers: { "Content_Type": "application/json"},
+        headers: { "Content-Type": "application/json"},
         body: JSON.stringify(input)
     });
 
-    if(!res.ok) {
-        const body = await res.json().catch(() => null);
-        throw new Error(`Sign up failes (${res.status})`);
-    }
+    if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.error?.message ?? `Signup failed (${res.status})`);
+  }
+
+  return res.json();
 }
 
 export async function currentUser(): Promise<AuthUser | null> {

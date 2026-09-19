@@ -10,7 +10,7 @@ export interface NotificationPages {
     has_more: Boolean;
 }
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "https://localhost:3000";
+const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
 interface GetNotificationOptions {
     limit?: number;
@@ -21,19 +21,19 @@ export async function getNotifications({
         limit = 4,
         offset = 0
     }:GetNotificationOptions = {}): Promise<NotificationPages> {
-    const res = await fetch(`API_BASE/api/notifications?limit=${limit}&offset=${offset}`, {credentials: "include"});
+    const res = await fetch(`${API_BASE}/api/notifications?limit=${limit}&offset=${offset}`, {credentials: "include"});
 
-    if(!res.ok) {
-        const body = await res.json().catch(()=> null) ;
-        throw new Error(`Failed to retrieve Notifications (${res.status})`)
-    }
+     if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.error?.message ?? `Failed to load notifications (${res.status})`);
+  }
 
     return res.json();
 }
 
 export async function readNotifications( id:number ): Promise<void> {
     
-    const res = await fetch(`API_BASE/api/notifications/${id}`, {
+    const res = await fetch(`${API_BASE}/api/notifications/${id}`, {
         method: "Patch",
         credentials: "include"
     })

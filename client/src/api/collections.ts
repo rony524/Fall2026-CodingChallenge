@@ -3,7 +3,7 @@ interface CollectionRecords {
     collection_id: number;
     description: string | null;
     is_public: boolean;
-    create_at: string;
+    created_at: string;
 }
 
 interface CollectionImages {
@@ -13,7 +13,7 @@ interface CollectionImages {
     caption: string;
 }
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "https://localhost:3000";
+const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
 async function handleJSON<T>( res: Response, fallbackMessage: string): Promise<T> {
     if(!res.ok) {
@@ -24,25 +24,25 @@ async function handleJSON<T>( res: Response, fallbackMessage: string): Promise<T
     return res.json();
 }
 
-export async function getCollection(): Promise<CollectionRecords> {
-    const res = await fetch(`API_BASE/api/collections`, {credentials: "include"});
-    return handleJSON(res, "Failed to load Collection");
+export async function getCollections(): Promise<CollectionRecords[]> {
+    const res = await fetch(`${API_BASE}/api/collections`, {credentials: "include"});
+    return handleJSON(res, "Failed to load collections");
 }
 
 export async function getCollectionImage(collection_id: number): Promise<CollectionImages[]> {
-    const res = await fetch(`API_BASE/api/collections/${collection_id}/images`, {credentials: "include"});
+    const res = await fetch(`${API_BASE}/api/collections/${collection_id}/images`, {credentials: "include"});
     return handleJSON(res, "Failed to load collection images");
 }
 
 export async function createCollection( input: {
     name: string,
     description?: string,
-    isPublic: Boolean
+    isPublic: boolean
 }): Promise<CollectionRecords> {
-    const res = await fetch(`API_BASE/api/collections`, {
+    const res = await fetch(`${API_BASE}/api/collections`, {
         method: "POST",
         credentials: "include",
-        headers: { "Content_Type": "application/json"},
+        headers: { "Content-Type": "application/json"},
         body: JSON.stringify(input)
     });
 
@@ -50,7 +50,7 @@ export async function createCollection( input: {
 }
 
 export async function removeImageFromCollection( collection_id: number, image_id: number): Promise<void> {
-    const res = await fetch(`API_BASE/api/collections/${collection_id}/images/${image_id}`, {
+    const res = await fetch(`${API_BASE}/api/collections/${collection_id}/images/${image_id}`, {
         method: "DELETE",
         credentials: "include"
     });
@@ -58,7 +58,7 @@ export async function removeImageFromCollection( collection_id: number, image_id
 }
 
 export async function addCollaborators( collection_id: number, username: string, role: "editor" | "viewer" = "editor"):Promise<void> {
-    const res = await fetch(`API_BASE/api/collections/${collection_id}/collaborators`, {
+    const res = await fetch(`${API_BASE}/api/collections/${collection_id}/collaborators`, {
         method: "POST",
         credentials: "include",
         headers: {"Content-Type" : "application/json"},
@@ -66,7 +66,7 @@ export async function addCollaborators( collection_id: number, username: string,
     });
     if (!res.ok) {
         const body = await res.json().catch(() => null);
-        throw new Error(body?.console.error?.message ??
+        throw new Error(body?.error?.message ??
         `Failed to add collaborators (${res.status})`);
     }
 }

@@ -1,0 +1,23 @@
+.view-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 0 24px 16px;
+  background: #faf6ef;
+}
+
+.view-tab {
+  padding: 9px 16px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: #75695f;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.view-tab.is-active {
+  background: #2c2521;
+  color: #ffffff;
+}

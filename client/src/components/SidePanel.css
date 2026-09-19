@@ -1,0 +1,81 @@
+.side-panel-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 16, 14, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 900;
+}
+
+.side-panel-backdrop.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.side-panel {
+  position: fixed;
+  top: 0;
+  height: 100%;
+  width: 300px;
+  max-width: 85vw;
+  background: #ffffff;
+  transition: transform 0.25s ease;
+  z-index: 901;
+  display: flex;
+  flex-direction: column;
+}
+
+.side-panel-right {
+  right: 0;
+  transform: translateX(100%);
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.15);
+}
+
+.side-panel-left {
+  left: 0;
+  transform: translateX(-100%);
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.15);
+}
+
+.side-panel.is-open {
+  transform: translateX(0);
+}
+
+.side-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border-bottom: 1px solid #e7e2da;
+}
+
+.side-panel-header h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.side-panel-close {
+  border: none;
+  background: transparent;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  color: #75695f;
+  padding: 0 4px;
+}
+
+.side-panel-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 16px 20px;
+}
+
+/* Respect reduced-motion preferences — snap instead of sliding. */
+@media (prefers-reduced-motion: reduce) {
+  .side-panel,
+  .side-panel-backdrop {
+    transition: none;
+  }
+}

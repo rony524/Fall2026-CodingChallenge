@@ -7,7 +7,7 @@ export interface ImageRecord {
     created_at: string
 }
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "https://localhost:3000";
+const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
 export async function getImages(): Promise<ImageRecord[]> {
 
