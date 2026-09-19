@@ -7,7 +7,7 @@ export interface NotificationItems {
 
 export interface NotificationPages {
     items: NotificationItems[];
-    has_more: Boolean;
+    has_more: boolean;
 }
 
 const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
@@ -34,7 +34,7 @@ export async function getNotifications({
 export async function readNotifications( id:number ): Promise<void> {
     
     const res = await fetch(`${API_BASE}/api/notifications/${id}`, {
-        method: "Patch",
+        method: "PATCH",
         credentials: "include"
     })
 

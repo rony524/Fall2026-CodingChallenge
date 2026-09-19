@@ -21,7 +21,7 @@ interface NewCollectionsProps {
     const[error, setError] = useState< string | null>(null);
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-        e.defaultPrevented;
+        e.preventDefault();
 
         setIsSubmitting(true);
         setError(null);
@@ -32,7 +32,7 @@ interface NewCollectionsProps {
         } catch(err) {
             setError(err instanceof Error ? err.message : "Failed to create collection")
         } finally {
-            setIsSubmitting(true);
+            setIsSubmitting(false);
         }
     }
 

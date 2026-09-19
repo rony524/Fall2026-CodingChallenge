@@ -1,0 +1,72 @@
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 4px 0;
+}
+
+.login-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4a4038;
+}
+
+.login-form-field input {
+  font: inherit;
+  font-weight: 400;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd3c7;
+  background: #fbf8f4;
+  color: #2a231d;
+}
+
+.login-form-field input:focus {
+  outline: none;
+  border-color: #b08a5c;
+}
+
+.login-form-error {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #fbe9e7;
+  color: #9b3b2e;
+  font-size: 13px;
+}
+
+.login-form-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.login-form-back {
+  background: none;
+  border: none;
+  color: #75695f;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 8px 4px;
+}
+
+.login-form-submit {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  background: #2a231d;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.login-form-submit:disabled,
+.login-form-back:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

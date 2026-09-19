@@ -7,24 +7,39 @@ import { Feed } from "../components/Feed";
 import { Collections } from "../components/Collections";
 import { FriendsView } from "../components/FriendsView";
 import { login, logout, currentUser, type AuthUser } from "../api/auth";
-import { getImages } from "../api/images";
+import { getImages, createImage } from "../api/images.ts";
+
 
 import heroImage from "../assets/heroImage.jpg";
 
 // Assumes collections.ts gets the getCollection -> getCollections fix
 // described in chat (rename + return type CollectionRecords[]). Using the
 // current singular/mis-typed version here would need an ugly cast.
-import { getCollections, createCollection } from "../api/collections";
+import { getCollections, createCollection, type CollectionRecords } from "../api/collections";
 import type { ImageItem, CollectionItem, FriendItem } from "../types";
 import "./HomePage.css";
 
 // Friends has no backend route yet — left as mock data until one exists.
 const MOCK_FRIENDS: FriendItem[] = [
-  { id: "f1", name: "mara", recentSrc: "/mock/photo-1.jpg" },
-  { id: "f2", name: "devon", recentSrc: "/mock/photo-2.jpg" },
-  { id: "f3", name: "imani", recentSrc: "/mock/photo-4.jpg" },
-  { id: "f4", name: "sana", recentSrc: "/mock/photo-6.jpg" },
+  { id: "f1", name: "mara", recentSrc: "/mock/photo-1.svg" },
+  { id: "f2", name: "devon", recentSrc: "/mock/photo-2.svg" },
+  { id: "f3", name: "imani", recentSrc: "/mock/photo-4.svg" },
+  { id: "f4", name: "sana", recentSrc: "/mock/photo-6.svg" },
 ];
+
+// The list endpoint fills in my_role / image_count / cover_url; the create
+// endpoint doesn't, but whoever just created a collection is its owner and it's empty.
+function toCollectionItem(r: CollectionRecords): CollectionItem {
+  return {
+    id: String(r.collection_id),
+    name: r.name,
+    description: r.description,
+    coverSrc: r.cover_url ?? undefined,
+    imageCount: r.image_count ?? 0,
+    isPublic: r.is_public,
+    myRole: r.my_role ?? "owner",
+  };
+}
 
 export function HomePage() {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -32,15 +47,30 @@ export function HomePage() {
   const [allImages, setAllImages] = useState<ImageItem[]>([]); // everything fetched, unfiltered
   const [images, setImages] = useState<ImageItem[]>([]); // what's actually shown (post-search)
   const [collections, setCollections] = useState<CollectionItem[]>([]);
-  const [loginError, setLoginError] = useState<string | null>(null);
 
+  async function handleUpload(input: { url: string; caption: string }) {
+  const record = await createImage(input);
+  const newImage: ImageItem = {
+    id: String(record.id),
+    src: record.url,
+    caption: record.caption,
+    owner: String(record.owner_id),
+  };
+  setAllImages((prev) => [newImage, ...prev]);
+  setImages((prev) => [newImage, ...prev]);
+}
   // Restore an existing session on load (e.g. page refresh) instead of
-  // always starting signed out. currentUser() resolves to null on a 401
-  // rather than throwing, so no try/catch needed here.
+  // always starting signed out. currentUser() resolves to null on a 401,
+  // but throws on other failures (e.g. server down) — treat those as signed out.
   useEffect(() => {
     async function restoreSession() {
-      const existingUser = await currentUser();
-      setUser(existingUser);
+      try {
+        const existingUser = await currentUser();
+        setUser(existingUser);
+      } catch (err) {
+        console.error(err);
+        setUser(null);
+      }
     }
     restoreSession();
   }, []);
@@ -50,15 +80,19 @@ export function HomePage() {
   // {id, src, caption, owner}), so map between the two shapes here.
   useEffect(() => {
     async function loadFeed() {
-      const records = await getImages();
-      const mapped: ImageItem[] = records.map((r) => ({
-        id: r.id,
-        src: r.url,
-        caption: r.caption,
-        owner: r.owner_id,
-      }));
-      setAllImages(mapped);
-      setImages(mapped);
+      try {
+        const records = await getImages();
+        const mapped: ImageItem[] = records.map((r) => ({
+          id: String(r.id),
+          src: r.url,
+          caption: r.caption,
+          owner: String(r.owner_id),
+        }));
+        setAllImages(mapped);
+        setImages(mapped);
+      } catch (err) {
+        console.error(err);
+      }
     }
     loadFeed();
   }, []);
@@ -69,27 +103,24 @@ export function HomePage() {
       setCollections([]);
       return;
     }
-    async function loadCollections() {
-      const records = await getCollections();
-      setCollections(
-        records.map((r) => ({
-          id: String(r.collection_id),
-          name: r.name,
-          imageCount: 0, 
-        }))
-      );
-    }
-    loadCollections();
+    refreshCollections();
   }, [user]);
 
-  async function handleSignIn(username: string, password: string) {
+  // Also called by the collection modal after photos are added/removed, so the
+  // cards' counts and covers stay in sync.
+  async function refreshCollections() {
     try {
-      setLoginError(null);
-      const signedInUser = await login(username, password);
-      setUser(signedInUser);
+      const records = await getCollections();
+      setCollections(records.map(toCollectionItem));
     } catch (err) {
-      setLoginError((err as Error).message);
+      console.error(err);
     }
+  }
+
+  // Errors are left to propagate: <LoginForm> catches them and shows the message.
+  async function handleSignIn(username: string, password: string) {
+    const signedInUser = await login(username, password);
+    setUser(signedInUser);
   }
 
   async function handleSignOut() {
@@ -109,12 +140,7 @@ export function HomePage() {
 
   async function handleCreateCollection(input: { name: string; description?: string }) {
     const record = await createCollection({ ...input, isPublic: false });
-    const newCollection: CollectionItem = {
-      id: String(record.collection_id),
-      name: record.name,
-      imageCount: 0,
-    };
-    setCollections((prev) => [newCollection, ...prev]);
+    setCollections((prev) => [toCollectionItem(record), ...prev]);
   }
 
   // Navbar expects { name, avatarUrl? }; AuthUser only has
@@ -125,12 +151,11 @@ export function HomePage() {
     <div className="home-page">
       <Navbar
         user={navbarUser}
-        onUploadClick={() => {}}
-        onProfileClick={user ? handleSignOut : () => {}}
-        onCreateCollections={handleCreateCollection}
+        onSignIn={handleSignIn}
+        onLogOut={handleSignOut}
+        onUpload={handleUpload}
+        onCreateCollection={handleCreateCollection}
       />
-
-      {loginError && <p className="home-page-error">{loginError}</p>}
 
       <AccordionHero imageUrl= {heroImage} />
 
@@ -141,7 +166,15 @@ export function HomePage() {
 
       <div className="home-page-content">
         {activeView === "discover" && <Feed images={images} />}
-        {activeView === "collections" && <Collections collections={collections} />}
+        {activeView === "collections" && (
+          <Collections
+            collections={collections}
+            isSignedIn={Boolean(user)}
+            currentUserId={user?.user_id ?? null}
+            availableImages={allImages}
+            onCollectionChanged={refreshCollections}
+          />
+        )}
         {activeView === "friends" && <FriendsView friends={MOCK_FRIENDS} />}
       </div>
     </div>

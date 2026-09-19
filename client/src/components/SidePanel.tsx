@@ -22,7 +22,7 @@ export function SidePanel({
         if (!isOpen) return;
 
         function handleKeyDown(e: KeyboardEvent) {
-            if (e.key == "Escape") onClose;
+            if (e.key === "Escape") onClose();
         }
         
         document.addEventListener("keydown", handleKeyDown);

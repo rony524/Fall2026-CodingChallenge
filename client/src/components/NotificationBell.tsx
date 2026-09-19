@@ -67,12 +67,12 @@ interface NotificationBellProps {
         if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
             setIsOpen(false);
         }
-
+    }
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
 
 
-    }
+    
     }, [isOpen])
 
     async function handleLoadMore() {
@@ -90,10 +90,10 @@ interface NotificationBellProps {
     }
 
     async function handleItemClick(item: NotificationItems) {
-        if (!item.is_read) return;
+        if (item.is_read) return;
 
         setNotificationItems((prev) => (
-                prev.map((n) => (n.notification_id == item.notification_id) ? {...n, is_read: true}: n)
+                prev.map((n) => (n.notification_id === item.notification_id) ? {...n, is_read: true}: n)
         ));
         
             

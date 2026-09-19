@@ -1,7 +1,7 @@
 -- create database PixShare_database;
 -- create schema database;
 
-create extension if not exist pgcrypt;
+create extension if not exists pgcrypto;
 
 drop table if exists notifications;
 drop table if exists collection_collaborators;
@@ -15,19 +15,19 @@ create table users (
     user_id  serial Primary Key,
     firstName varchar(30),
     lastName varchar(30),
-    username varchar(50),
-    password_hash varchar(50),
+    username varchar(50) not null unique,
+    password_hash text not null, -- bcrypt hashes are 60 chars
     created_at timestamp default now()
-)
+);
 
 -- Images data table, references User
 create table images(
     image_id Serial Primary Key,
-    user_id int not null references User(user_id) on delete cascade;
+    user_id int not null references users(user_id) on delete cascade,
     url text not null,
     caption text not null,
     created_at timestamp default now()
-)
+);
 
 -- Collections data table, references User 
 create table collections (

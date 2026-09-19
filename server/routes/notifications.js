@@ -1,22 +1,23 @@
 import { Router } from "express";
 import { pool } from "../db.js";
+import { requireAuth } from "../middleware/requireAuth.js";
 
-const notificationsRouter = new Router();
+export const notificationsRouter = new Router();
 
 //api get notifications of user route
 notificationsRouter.get("/", requireAuth, async (req,res) => {
 
-    const limit = Math.min((Number(req.params.limit)) || 4, 50);
-    const offset = Number(req.params.offset) || 0;
+    const limit = Math.min(Math.max(Number(req.query.limit) || 4, 1), 50);
+    const offset = Math.max(Number(req.query.offset) || 0, 0);
 
-    const itemsResult = await pool.query(`SELECT notification_id, message, is_read, created_at FROM notifications WHERE user_id = $1 ORDER BY created_at DESC LIMIT = $2 OFFSET = $3`, [req.session.userId, limit, offset]);
+    const itemsResult = await pool.query(`SELECT notification_id, message, is_read, created_at FROM notifications WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`, [req.session.userId, limit, offset]);
     const countResult = await pool.query(`SELECT COUNT(notification_id) FROM notifications WHERE user_id = $1`, [req.session.userId]);
 
     const total = Number(countResult.rows[0].count);
 
     res.status(200).json({
         items: itemsResult.rows,
-        hasMore: offset + itemsResult.rows.length < total
+        has_more: offset + itemsResult.rows.length < total
     })
 
 
