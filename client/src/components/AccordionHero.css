@@ -1,3 +1,11 @@
+/* AccordionHero: the full-screen animated hero (see AccordionHero.tsx).
+
+   The camera transition is driven entirely from here. The component sets two things:
+     data-phase   on .acc-hero-visual: "idle" | "focusing" | "closing" | "opening"
+     --focus-x / --focus-y   the focus point (in %) that every layer below centres on
+   The transition durations below are meant to stay roughly in step with FOCUS_MS,
+   CLOSE_MS and OPEN_MS in the .tsx, which time the phase changes. */
+
 .acc-hero {
   --accent: #b25a3c;
 
@@ -138,6 +146,8 @@
   transition-timing-function: ease-out;
 }
 
+/* The step's title and text. The component gives it key={step id}, so it is re-created on
+   every step change and this entrance animation plays again by itself. */
 .acc-hero-text {
   position: absolute;
   left: 48px;
@@ -164,6 +174,7 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Users who ask their OS for less motion get the same content without the animation */
 @media (prefers-reduced-motion: reduce) {
   .acc-hero-bg, .acc-hero-vignette, .acc-hero-lens, .acc-hero-shutter, .acc-hero-text {
     transition: none;
@@ -171,6 +182,7 @@
   }
 }
 
+/* Phones: the step list becomes a horizontal strip above the image instead of a left column */
 @media (max-width: 720px) {
   .acc-hero {
     flex-direction: column;

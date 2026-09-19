@@ -1,3 +1,19 @@
+/**
+ * Authentication routes, mounted at /api/auth.
+ *
+ *   POST /signup   create an account and log in
+ *   POST /login    log in
+ *   POST /logout   log out
+ *   GET  /me       who is logged in right now?
+ *
+ * "Logged in" means a server-side session: on success we store the user's id in
+ * `req.session.userId`, and express-session gives the browser a cookie that points at
+ * that session on later requests. Passwords are never stored, only bcrypt hashes.
+ *
+ * Note: Postgres lowercases unquoted column names, so `firstName` comes back as
+ * `firstname` in query results. That is why the JSON sent to the client uses
+ * `firstname` / `lastname`.
+ */
 import { Router} from "express";
 import bcrypt from "bcrypt";
 import { pool} from "../db.js";
@@ -5,7 +21,7 @@ import { requireAuth } from "../middleware/requireAuth.js";
 
 export const authRouter = Router();
 
-//api post signup route
+// POST /api/auth/signup - create an account, then log the new user in straight away
 authRouter.post("/signup", async (req, res) => {
     const {firstName, lastName, username, password} = req.body;
 
@@ -15,6 +31,8 @@ authRouter.post("/signup", async (req, res) => {
         )
     }
 
+    // Friendly 409 for the common case. (The UNIQUE constraint on users.username is the
+    // real guarantee if two signups with the same name arrive at the same moment.)
     const exsisting = await pool.query(
         `SELECT user_id FROM users WHERE username =$1`, [username]
     )
@@ -25,6 +43,7 @@ authRouter.post("/signup", async (req, res) => {
         )
     }
 
+    // 10 = bcrypt cost factor. The salt is generated for us and stored inside the hash.
     const password_hash = await bcrypt.hash(password, 10);
 
     const result = await pool.query(
@@ -38,7 +57,7 @@ authRouter.post("/signup", async (req, res) => {
     res.status(201).json(user);
 })
 
-//api post login route
+// POST /api/auth/login - check the password and start a session
 authRouter.post("/login", async (req,res) => {
    const {username, password} = req.body;
 
@@ -54,6 +73,9 @@ authRouter.post("/login", async (req,res) => {
 
    const user = result.rows[0];
 
+   // Unknown username and wrong password get the same answer on purpose, so the
+   // response can't be used to find out which usernames exist.
+   // bcrypt.compare re-hashes the attempt using the salt stored in the saved hash.
    if(!user || !(await bcrypt.compare(password, user.password_hash))) {
     return res.status(401).json(
         {error: {code: "INVALID_CREDENTIAL", message: "Incorrect username or password"}}
@@ -61,13 +83,14 @@ authRouter.post("/login", async (req,res) => {
    }
 
    req.session.userId = user.user_id;
+   // Never send password_hash back: pick the public fields explicitly
    res.status(200).json({
         user_id: user.user_id, username: user.username, firstname: user.firstname, lastname: user.lastname
    });
 
 })
 
-//api post logout route
+// POST /api/auth/logout - end the session (the cookie then points at nothing)
 authRouter.post("/logout", async (req,res) => {
     req.session.destroy(() => {
         res.status(204).send()
@@ -75,7 +98,8 @@ authRouter.post("/logout", async (req,res) => {
 
 });
 
-//api get current user route
+// GET /api/auth/me - the logged-in user, or 401 if nobody is.
+// The client calls this on page load to restore the session after a refresh.
 authRouter.get("/me", async (req, res) => {
     if(!req.session.userId) {
        return res.status(401).json(
@@ -84,7 +108,7 @@ authRouter.get("/me", async (req, res) => {
     }
 
     const result = await pool.query(
-        `SELECT user_id, firstName, lastName, username FROM users WHERE user_id=$1`, [req.session.userId] 
+        `SELECT user_id, firstName, lastName, username FROM users WHERE user_id=$1`, [req.session.userId]
     );
     const user = result.rows[0];
 

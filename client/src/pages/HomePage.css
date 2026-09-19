@@ -1,13 +1,20 @@
+/* HomePage layout. The app's palette, used across the component stylesheets:
+     cream page background #faf6ef   ink #2c2521   soft text #75695f
+     border #e7e2da                  accent #b25a3c */
+
 .home-page {
   min-height: 100vh;
   background: #faf6ef;
 }
 
+/* Search bar and view tabs, below the hero */
 .home-page-controls {
   padding-top: 16px;
   background: #faf6ef;
 }
 
+/* Holds the active view. The min-height keeps some room when a view is empty or still
+   loading, so the layout doesn't jump. */
 .home-page-content {
   min-height: 40vh;
 }

@@ -1,11 +1,17 @@
+/**
+ * A simple landing-page hero: headline, subtitle, one or two buttons and an optional image.
+ *
+ * Not used at the moment: HomePage shows the animated AccordionHero instead. It's kept
+ * as a plainer alternative for a signed-out landing page.
+ */
 import "./Hero.css";
 
 interface HeroProps {
   title: string;
   subtitle: string;
-  ctaLabel: string;
+  ctaLabel: string;          // text of the main button
   onCtaClick: () => void;
-  secondaryLabel?: string;
+  secondaryLabel?: string;   // optional second button; omit both secondary props to hide it
   onSecondaryClick?: () => void;
   imageUrl?: string; // optional preview image / screenshot shown beside the copy
 }
@@ -42,6 +48,7 @@ export function Hero({
 
       {imageUrl && (
         <div className="hero-media">
+          {/* alt="" because the image is decorative (the copy beside it says everything) */}
           <img src={imageUrl} alt="" />
         </div>
       )}

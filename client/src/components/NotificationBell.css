@@ -1,3 +1,8 @@
+/* NotificationBell: the bell button, its unread badge, and the popover list.
+   .notif-wrap is the positioning anchor: the popover is placed relative to it, just below
+   the bell and right-aligned. The popover's z-index (950) sits above the side panel
+   (900/901) and below the collection modal (1000). */
+
 .notif-wrap {
   position: relative;
 }
@@ -15,6 +20,7 @@
   cursor: pointer;
 }
 
+/* Unread count, pinned to the bell's top-right corner */
 .notif-badge {
   position: absolute;
   top: 2px;
@@ -53,6 +59,7 @@
   z-index: 950;
 }
 
+/* Open state, toggled by the component. pointer-events comes back so it can be clicked. */
 .notif-popover.is-open {
   transform: scale(1);
   opacity: 1;
@@ -85,6 +92,7 @@
   overflow-y: auto;
 }
 
+/* One notification. Read ones aren't clickable (nothing left to do); unread ones are. */
 .notif-item {
   display: block;
   width: 100%;

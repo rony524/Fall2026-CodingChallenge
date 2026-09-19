@@ -1,3 +1,16 @@
+/**
+ * The app's only page. It owns the state shared between the navbar and the three views
+ * (Discover / Collections / Friends) and talks to the API on their behalf:
+ *
+ *   - who is signed in (restored from the session cookie on load)
+ *   - the photo feed, plus the search filter applied to it
+ *   - the signed-in user's collections
+ *
+ * The child components stay simple: they get data and callbacks as props and never call
+ * the API for this state themselves. The one exception is CollectionModal, which loads
+ * the photos and people of the collection it shows and tells this page when something
+ * changed (onCollectionChanged) so the cards refresh.
+ */
 import { useEffect, useState } from "react";
 import { Navbar } from "../components/Navbar";
 import { AccordionHero } from "../components/AccordionHero";
@@ -12,9 +25,6 @@ import { getImages, createImage } from "../api/images.ts";
 
 import heroImage from "../assets/heroImage.jpg";
 
-// Assumes collections.ts gets the getCollection -> getCollections fix
-// described in chat (rename + return type CollectionRecords[]). Using the
-// current singular/mis-typed version here would need an ugly cast.
 import { getCollections, createCollection, type CollectionRecords } from "../api/collections";
 import type { ImageItem, CollectionItem, FriendItem } from "../types";
 import "./HomePage.css";
@@ -27,6 +37,7 @@ const MOCK_FRIENDS: FriendItem[] = [
   { id: "f4", name: "sana", recentSrc: "/mock/photo-6.svg" },
 ];
 
+// Converts an API collection record into the shape the Collections view uses.
 // The list endpoint fills in my_role / image_count / cover_url; the create
 // endpoint doesn't, but whoever just created a collection is its owner and it's empty.
 function toCollectionItem(r: CollectionRecords): CollectionItem {
@@ -48,6 +59,8 @@ export function HomePage() {
   const [images, setImages] = useState<ImageItem[]>([]); // what's actually shown (post-search)
   const [collections, setCollections] = useState<CollectionItem[]>([]);
 
+  // Saves a new photo, then adds it to the top of the feed locally so it appears at once
+  // (no need to re-fetch the whole feed). Errors propagate so <UploadImageForm> can show them.
   async function handleUpload(input: { url: string; caption: string }) {
   const record = await createImage(input);
   const newImage: ImageItem = {
@@ -97,7 +110,8 @@ export function HomePage() {
     loadFeed();
   }, []);
 
-  // Collections only matter once someone's signed in.
+  // Collections only matter once someone's signed in. Re-runs whenever `user` changes,
+  // so signing in loads them and signing out clears them.
   useEffect(() => {
     if (!user) {
       setCollections([]);
@@ -130,6 +144,8 @@ export function HomePage() {
 
   // No search endpoint exists yet (api/images.ts only has getImages()), so
   // this filters what's already loaded client-side instead of fetching.
+  // Matching is by caption. Sorting by "popular" only reverses the order for now: there is
+  // no popularity data yet, so it's a placeholder. Always switches to the Discover view.
   function handleSearch(query: string, filters: SearchFilters) {
     const q = query.trim().toLowerCase();
     const matches = q ? allImages.filter((img) => img.caption.toLowerCase().includes(q)) : allImages;
@@ -138,6 +154,8 @@ export function HomePage() {
     setActiveView("discover");
   }
 
+  // New collections are created private (the menu form has no public/private option yet).
+  // Errors propagate so <NewCollectionsForm> can show them.
   async function handleCreateCollection(input: { name: string; description?: string }) {
     const record = await createCollection({ ...input, isPublic: false });
     setCollections((prev) => [toCollectionItem(record), ...prev]);
@@ -164,6 +182,8 @@ export function HomePage() {
         <ViewTabs active={activeView} onChange={setActiveView} />
       </div>
 
+      {/* Only the active view is rendered. availableImages is the unfiltered feed, so the
+          collection modal can offer any photo when adding to a collection. */}
       <div className="home-page-content">
         {activeView === "discover" && <Feed images={images} />}
         {activeView === "collections" && (

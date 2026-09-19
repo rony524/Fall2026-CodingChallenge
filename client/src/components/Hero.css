@@ -1,3 +1,7 @@
+/* Hero: the plain landing-page hero (see Hero.tsx; not currently used on the home page).
+   Two columns, copy on the left and an optional image on the right, that stack on phones.
+   The --hero-* variables are the component's palette. */
+
 .hero {
   --hero-bg: #faf6ef;
   --hero-ink: #2c2521;

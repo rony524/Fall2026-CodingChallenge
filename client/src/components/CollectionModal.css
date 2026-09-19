@@ -1,3 +1,11 @@
+/* CollectionModal: the pop-up for a collection (see CollectionModal.tsx). "cm-" is the
+   class prefix for everything in it.
+
+   Structure: .cm-backdrop (dimmed full-screen layer that centres the dialog)
+                └ .cm-dialog (header, tabs, error bar, scrolling body)
+   z-index 1000 puts it above the side panel (900/901) and the notification popover (950).
+   The dialog is a flex column so only .cm-body scrolls: the header and tabs stay put. */
+
 .cm-backdrop {
   position: fixed;
   inset: 0;
@@ -23,6 +31,8 @@
   animation: cm-pop 180ms ease;
 }
 
+/* The dialog receives focus when it opens (so keyboard users start inside it), but a focus
+   ring around the whole modal would just look like a glitch. */
 .cm-dialog:focus {
   outline: none;
 }
@@ -395,6 +405,7 @@
   padding: 4px 6px;
 }
 
+/* Visible keyboard-focus ring for the modal's buttons (shown for keyboard use, not mouse clicks) */
 .cm-close:focus-visible,
 .cm-tab:focus-visible,
 .cm-primary-btn:focus-visible,

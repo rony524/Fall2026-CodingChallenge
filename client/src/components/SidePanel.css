@@ -1,3 +1,7 @@
+/* SidePanel: a drawer that slides in from the right (or left) over a dimmed backdrop.
+   z-index layering across the app: side panel backdrop 900, panel 901,
+   notification popover 950, collection modal 1000. */
+
 .side-panel-backdrop {
   position: fixed;
   inset: 0;
@@ -26,6 +30,8 @@
   flex-direction: column;
 }
 
+/* Closed state: the panel is parked just off its edge (translateX) and slides in when
+   .is-open removes the offset. */
 .side-panel-right {
   right: 0;
   transform: translateX(100%);

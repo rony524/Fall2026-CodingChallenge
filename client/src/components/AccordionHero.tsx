@@ -1,6 +1,17 @@
+/**
+ * The animated hero at the top of the home page: a big photo with a list of steps
+ * (Capture / Organize / Share) down the left.
+ *
+ * Picking a step plays a camera-style transition: a lens reticle appears and the photo
+ * zooms toward that step's focus point, a shutter "iris" closes to black, the text is
+ * swapped while the screen is black, and the iris opens again on the new text.
+ * The animation itself is CSS (driven by the `data-phase` attribute and the --focus-x /
+ * --focus-y variables); this component only steps through the phases on timers.
+ */
 import { useEffect, useRef, useState } from "react";
 import "./AccordionHero.css";
 
+// One entry in the list. focusX / focusY say where on the photo the lens zooms to.
 interface HeroStep {
   id: string;
   label: string;
@@ -36,7 +47,7 @@ export function AccordionHero({ imageUrl, steps = DEFAULT_STEPS }: AccordionHero
   const [activeIndex, setActiveIndex] = useState(0); // which step is selected (drives the left list + focus point)
   const [displayedIndex, setDisplayedIndex] = useState(0); // which step's TEXT is on screen (swapped mid-shutter)
   const [phase, setPhase] = useState<Phase>("idle");
-  const timers = useRef<number[]>([]);
+  const timers = useRef<number[]>([]); // ids of the pending phase-change timeouts
 
   function clearTimers() {
     timers.current.forEach((id) => clearTimeout(id));
@@ -53,6 +64,7 @@ export function AccordionHero({ imageUrl, steps = DEFAULT_STEPS }: AccordionHero
     setActiveIndex(index);
     setPhase("focusing");
 
+    // Schedule the rest of the sequence up front: focusing -> closing -> opening -> idle
     const t1 = window.setTimeout(() => setPhase("closing"), FOCUS_MS);
     const t2 = window.setTimeout(() => {
       setDisplayedIndex(index); // swap the text now — the screen is fully black at this instant
@@ -63,6 +75,8 @@ export function AccordionHero({ imageUrl, steps = DEFAULT_STEPS }: AccordionHero
     timers.current = [t1, t2, t3];
   }
 
+  // The focus point follows the selected step immediately, but the text lags behind
+  // (displayedStep) until the shutter has closed, so the swap is hidden.
   const focusStep = steps[activeIndex];
   const displayedStep = steps[displayedIndex];
 
@@ -72,6 +86,7 @@ export function AccordionHero({ imageUrl, steps = DEFAULT_STEPS }: AccordionHero
         {steps.map((step, i) => (
           <li key={step.id} className={`acc-hero-step ${i === activeIndex ? "is-active" : ""}`}>
             <span className="acc-hero-step-line" />
+            {/* Buttons are disabled while the animation runs so clicks can't overlap */}
             <button type="button" onClick={() => selectStep(i)} disabled={phase !== "idle"}>
               {step.label}
             </button>
@@ -86,6 +101,8 @@ export function AccordionHero({ imageUrl, steps = DEFAULT_STEPS }: AccordionHero
         // this is how the focus point (a % position) reaches every layer below via var(--focus-x/y).
         style={{ "--focus-x": `${focusStep.focusX}%`, "--focus-y": `${focusStep.focusY}%` } as React.CSSProperties}
       >
+        {/* Layers, bottom to top: photo, dark vignette (keeps the text readable), lens
+            reticle, shutter, then the text. */}
         <img className="acc-hero-bg" src={imageUrl} alt="" />
         <div className="acc-hero-vignette" />
 

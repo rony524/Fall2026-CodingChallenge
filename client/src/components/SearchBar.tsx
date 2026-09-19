@@ -1,3 +1,11 @@
+/**
+ * The search box with an expandable "Filters" panel, shown under the hero.
+ *
+ * It keeps the typed query and the chosen filters in its own state and reports them to
+ * the parent with `onSearch` only when the form is submitted (Search button or Enter).
+ * HomePage does the actual filtering. Currently it matches captions and uses `sortBy`;
+ * `orientation` is collected here but not applied yet, since photos carry no size data.
+ */
 import { useState } from "react";
 import "./SearchBar.css";
 
@@ -18,7 +26,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+    e.preventDefault(); // stop the browser's default full-page form submit
     onSearch(query, filters);
   }
 

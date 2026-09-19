@@ -1,10 +1,18 @@
+/**
+ * The "Upload Photo" screen inside the navbar's side panel.
+ *
+ * For now a "photo" is a link to an image that's already hosted somewhere plus a caption;
+ * the server stores just those two strings, not a file. Signed-out visitors get a short
+ * "log in first" message instead of the form. Like LoginForm, it hands the values to a
+ * callback (`onUpload`) and shows any error that comes back.
+ */
 import { useState } from "react";
 import "./UploadImageForm.css";
 
 interface UploadImageFormProps {
   isSignedIn: boolean;
   onUpload: (input: { url: string; caption: string }) => Promise<void>;
-  onBack: () => void;
+  onBack: () => void; // return to the menu screen
 }
 
 export function UploadImageForm({ isSignedIn, onUpload, onBack }: UploadImageFormProps) {
@@ -13,6 +21,8 @@ export function UploadImageForm({ isSignedIn, onUpload, onBack }: UploadImageFor
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // All hooks are declared above this point: React requires hooks to run on every render,
+  // so an early return like this one has to come after them.
   if (!isSignedIn) {
     return (
       <div className="upload-form">
@@ -25,7 +35,7 @@ export function UploadImageForm({ isSignedIn, onUpload, onBack }: UploadImageFor
   }
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+    e.preventDefault(); // stop the browser's default full-page form submit
     if (!url.trim() || !caption.trim()) return;
 
     setError(null);
@@ -47,6 +57,7 @@ export function UploadImageForm({ isSignedIn, onUpload, onBack }: UploadImageFor
         device is a future upgrade).
       </p>
 
+      {/* type="url" makes the browser check the address looks like a link before submitting */}
       <label className="upload-form-field">
         <span>Image URL</span>
         <input

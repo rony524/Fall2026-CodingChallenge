@@ -1,3 +1,6 @@
+/* ViewTabs: the pill-shaped tab row (Discover / Collections / Friends). The active tab is
+   filled dark; the others are plain text. */
+
 .view-tabs {
   display: flex;
   gap: 4px;

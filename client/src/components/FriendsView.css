@@ -1,3 +1,6 @@
+/* FriendsView: a responsive grid of friend cards, each a photo above an avatar + name row.
+   Same grid recipe as the Feed and Collections views. */
+
 .friends-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -26,6 +29,7 @@
   padding: 10px 12px;
 }
 
+/* Round avatar. With no image, it shows the friend's initial on the accent colour. */
 .friend-card-avatar {
   width: 28px;
   height: 28px;

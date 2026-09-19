@@ -1,3 +1,6 @@
+/* UploadImageForm: the upload screen inside the navbar's side panel. Same pattern as
+   LoginForm.css: a hint, labelled fields, an error box, and a Back / Upload row. */
+
 .upload-form {
   display: flex;
   flex-direction: column;
@@ -36,6 +39,7 @@
   border-color: #b08a5c;
 }
 
+/* Shown when the upload fails */
 .upload-form-error {
   margin: 0;
   padding: 8px 10px;
@@ -72,6 +76,7 @@
   cursor: pointer;
 }
 
+/* Both buttons dim while an upload is in flight */
 .upload-form-submit:disabled,
 .upload-form-back:disabled {
   opacity: 0.6;

@@ -1,3 +1,7 @@
+/* LoginForm: the log-in screen inside the navbar's side panel.
+   Layout is a single column of labelled fields, an error box, and a Back / Log in row.
+   (UploadImageForm.css uses the same visual pattern.) */
+
 .login-form {
   display: flex;
   flex-direction: column;
@@ -29,6 +33,7 @@
   border-color: #b08a5c;
 }
 
+/* Shown when signing in fails, e.g. "Incorrect username or password" */
 .login-form-error {
   margin: 0;
   padding: 8px 10px;
@@ -65,6 +70,7 @@
   cursor: pointer;
 }
 
+/* Both buttons dim while a sign-in request is in flight */
 .login-form-submit:disabled,
 .login-form-back:disabled {
   opacity: 0.6;

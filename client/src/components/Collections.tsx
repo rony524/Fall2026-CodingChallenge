@@ -1,3 +1,11 @@
+/**
+ * The "Collections" view: a grid of cards, one per collection the user owns or has been
+ * invited to. Clicking a card opens CollectionModal for it.
+ *
+ * Which card is open is this component's own state (`openId`). The modal is looked up
+ * from the `collections` prop by id, so if the list changes underneath it (say the user
+ * leaves the collection, or logs out) the modal disappears instead of showing stale data.
+ */
 import { useState } from "react";
 import type { CollectionItem, ImageItem } from "../types";
 import { CollectionModal } from "./CollectionModal";
@@ -6,6 +14,7 @@ import "./Collections.css";
 interface CollectionsProps {
     collections: CollectionItem[];
     isSignedIn: boolean;
+    // Lets the modal mark the current user's row ("you") and offer "Leave"
     currentUserId: number | null;
     // Photos the user can pick from when adding to a collection (the loaded feed).
     availableImages: ImageItem[];
@@ -14,6 +23,7 @@ interface CollectionsProps {
     onCollectionChanged: () => void;
 }
 
+// Display names for the roles (the data uses the lowercase ids)
 const ROLE_LABEL = { owner: "Owner", editor: "Editor", viewer: "Viewer" } as const;
 
 export function Collections({
@@ -23,9 +33,11 @@ export function Collections({
     availableImages,
     onCollectionChanged,
 }: CollectionsProps) {
+    // id of the collection whose modal is open, or null when none is
     const [openId, setOpenId] = useState<string | null>(null);
     const openCollection = collections.find((c) => c.id === openId);
 
+    // Empty states. Both come after the hook above, since hooks can't be called conditionally.
     if (!isSignedIn) {
         return <p className="collections-empty">Log in to see your collections.</p>;
     }
@@ -49,6 +61,7 @@ export function Collections({
                         onClick={() => setOpenId(collection.id)}
                     >
                         <div className="collection-card-cover">
+                            {/* Cover = the newest photo. Empty collections get a placeholder icon. */}
                             {collection.coverSrc ? (
                                 <img src={collection.coverSrc} alt="" loading="lazy" />
                             ) : (
@@ -61,6 +74,7 @@ export function Collections({
                                     </svg>
                                 </span>
                             )}
+                            {/* Badge only on collections someone else shared with you */}
                             {collection.myRole !== "owner" && (
                                 <span className="collection-card-badge">Shared · {ROLE_LABEL[collection.myRole]}</span>
                             )}
@@ -77,6 +91,8 @@ export function Collections({
                 ))}
             </div>
 
+            {/* key={id} makes React start with fresh state (and reload the photos and people)
+                for each collection instead of reusing one modal instance between them. */}
             {openCollection && (
                 <CollectionModal
                     key={openCollection.id}

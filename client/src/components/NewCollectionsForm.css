@@ -1,3 +1,8 @@
+/* NewCollectionsForm: the "New Collection" screen inside the navbar's side panel.
+   Colours use the --nav-* variables from Navbar.css (this form renders inside the navbar
+   element, so it inherits them). The value after each comma is the fallback in case it's
+   ever rendered elsewhere. */
+
 .new-collection-wrap {
   display: flex;
   flex-direction: column;

@@ -1,10 +1,18 @@
+/**
+ * The "New Collection" screen inside the navbar's side panel: a name, an optional
+ * description, and a Create button. Signed-out visitors see a "log in first" message.
+ * It hands the values to `onCreate` (HomePage creates the collection through the API)
+ * and shows any error that comes back. New collections are private.
+ *
+ * (The component is exported as `NewCollectionsForms`, with an "s".)
+ */
 import {useState} from "react";
 import "./NewCollectionsForm.css";
 
 interface NewCollectionsProps {
     isSignedIn: boolean,
     onCreate: (input: {name: string; description?: string}) => Promise<void>,
-    onBack: () => void;
+    onBack: () => void; // return to the menu screen
 }
 
  export function NewCollectionsForms(
@@ -21,17 +29,19 @@ interface NewCollectionsProps {
     const[error, setError] = useState< string | null>(null);
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-        e.preventDefault();
+        e.preventDefault(); // stop the browser's default full-page form submit
 
         setIsSubmitting(true);
         setError(null);
 
         try {
+            // An empty description is sent as undefined so the server stores null, not ""
             await onCreate({ name: name.trim(), description: description.trim()  || undefined});
             onBack();
         } catch(err) {
             setError(err instanceof Error ? err.message : "Failed to create collection")
         } finally {
+            // Re-enable the button whether it worked or failed, so an error can be retried
             setIsSubmitting(false);
         }
     }

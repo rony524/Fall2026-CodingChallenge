@@ -1,9 +1,16 @@
+/**
+ * The "Log in" screen inside the navbar's side panel.
+ *
+ * It doesn't call the API itself: it hands the credentials to `onSignIn` (which HomePage
+ * implements). If that rejects — e.g. "Incorrect username or password" — the message is
+ * shown under the fields and the form stays open so the user can try again.
+ */
 import { useState } from "react";
 import "./LoginForm.css";
 
 interface LoginFormProps {
   onSignIn: (username: string, password: string) => Promise<void>;
-  onBack: () => void;
+  onBack: () => void; // return to the menu screen
 }
 
 export function LoginForm({ onSignIn, onBack }: LoginFormProps) {
@@ -13,11 +20,11 @@ export function LoginForm({ onSignIn, onBack }: LoginFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+    e.preventDefault(); // stop the browser's default full-page form submit
     if (!username.trim() || !password) return;
 
     setError(null);
-    setIsSubmitting(true);
+    setIsSubmitting(true); // disables the buttons so it can't be submitted twice
     try {
       await onSignIn(username.trim(), password);
       onBack(); // success — back to the menu view, which now shows the signed-in identity

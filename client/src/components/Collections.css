@@ -1,3 +1,7 @@
+/* Collections: the Collections view (see Collections.tsx). A responsive grid of cards;
+   each card is a <button> (so it's keyboard-focusable), a cover on top and the name and
+   photo count below. The button's default browser styling is reset first. */
+
 .collections-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -31,6 +35,8 @@
   outline-offset: 2px;
 }
 
+/* 4:3 cover area. The gradient shows behind the placeholder icon when a collection is
+   empty; when there's a photo, it covers the area fully (object-fit: cover). */
 .collection-card-cover {
   position: relative;
   aspect-ratio: 4 / 3;
@@ -54,6 +60,7 @@
   opacity: 0.55;
 }
 
+/* "Shared · Editor/Viewer" tag over the cover's top-left corner (only on shared collections) */
 .collection-card-badge {
   position: absolute;
   top: 10px;

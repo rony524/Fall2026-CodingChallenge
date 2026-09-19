@@ -1,3 +1,6 @@
+/* Feed: the Discover view. A responsive grid: as many columns of at least 200px as fit,
+   sharing the row evenly. Each card is a square, and the label sits over the photo. */
+
 .feed-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -20,6 +23,8 @@
   display: block;
 }
 
+/* Label over the bottom of the photo. The gradient darkens just enough behind the white
+   text to keep it readable on any picture. */
 .feed-card-caption {
   position: absolute;
   left: 0;
